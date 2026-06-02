@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery — Jaden Gorrilla Photographer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f0ebe3;
+      --ink: #0e0d0b;
+      --rust: #b84d2a;
+      --mist: #8c8880;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 3rem;
+      background: linear-gradient(to bottom, rgba(14,13,11,0.6), transparent);
+      backdrop-filter: blur(8px);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      opacity: 0.65;
+      transition: opacity 0.3s ease;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    /* ── HERO CAROUSEL ── */
+    #hero {
+      position: relative;
+      height: 65vh;
+      overflow: hidden;
+      margin-top: 6rem;
+    }
+
+    .carousel-container {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      gap: 3px;
+      will-change: transform;
+    }
+
+    .carousel-slide {
+      flex-shrink: 0;
+      height: 100%;
+      width: 35vw;
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .carousel-slide:nth-child(even) {
+      margin-top: 3vh;
+      height: calc(100% - 3vh);
+    }
+
+    .carousel-slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--ink);
+      transition: opacity 1.2s ease;
+    }
+
+    .carousel-slide.revealed::after { opacity: 0; }
+
+    /* Photo styles with fallback gradients */
+    .photo-1 { background: linear-gradient(135deg, #4a3828 0%, #2a1810 50%, #1a0f0a 100%); }
+    .photo-2 { background: linear-gradient(160deg, #1a2a30 0%, #2a3840 40%, #3a4a50 100%); }
+    .photo-3 { background: radial-gradient(ellipse at 30% 70%, #5a4030 0%, #2a1a10 60%, #0e0d0b 100%); }
+    .photo-4 { background: linear-gradient(200deg, #3a2818 0%, #6a5a38 50%, #2a2010 100%); }
+    .photo-5 { background: radial-gradient(ellipse at 70% 40%, #4a2820 0%, #2a1810 50%, #0e0d0b 100%); }
+    .photo-6 { background: linear-gradient(180deg, #1e2830 0%, #2a3840 50%, #1a2228 100%); }
+    .photo-7 { background: radial-gradient(ellipse at 50% 60%, #604030 0%, #301e14 60%, #0e0d0b 100%); }
+    .photo-8 { background: linear-gradient(220deg, #2a2018 0%, #504030 50%, #1a1410 100%); }
+    .photo-9 { background: radial-gradient(ellipse at 40% 30%, #3a2818 0%, #1e1410 50%, #0a0908 100%); }
+
+    .carousel-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(14,13,11,0.5) 100%);
+      z-index: 2;
+    }
+
+    /* ── INTRO SECTION ── */
+    #intro {
+      padding: 6rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .intro-eyebrow {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 2rem;
+    }
+
+    .intro-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      line-height: 1.15;
+      color: var(--cream);
+      margin-bottom: 2rem;
+    }
+
+    .intro-title em { font-style: italic; color: var(--rust); }
+
+    .intro-text {
+      font-size: 0.75rem;
+      line-height: 2;
+      color: var(--mist);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* ── GALLERY GRID ── */
+    #gallery {
+      padding: 6rem 3rem;
+    }
+
+    .gallery-section {
+      margin-bottom: 8rem;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .gallery-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .shoot-label {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(240,235,227,0.1);
+    }
+
+    .shoot-label-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: var(--rust);
+      line-height: 1;
+    }
+
+    .shoot-label-text h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--cream);
+      margin-bottom: 0.3rem;
+      line-height: 1.1;
+    }
+
+    .shoot-label-text p {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--mist);
+      text-transform: uppercase;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 4rem;
+      margin-bottom: 4rem;
+    }
+
+    .photo-card {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4/5;
+    }
+
+    .photo-card-img {
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+
+    .photo-card-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--ink);
+      transition: opacity 1s ease;
+      opacity: 1;
+    }
+
+    .photo-card-img.loaded::after { opacity: 0; }
+
+    .photo-card:hover .photo-card-img { transform: scale(1.05); }
+
+    .photo-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(14,13,11,0.9) 0%, rgba(14,13,11,0.3) 60%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 2rem;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .photo-card:hover .photo-card-overlay { opacity: 1; }
+
+    .photo-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--cream);
+      margin-bottom: 0.4rem;
+      line-height: 1.1;
+    }
+
+    .photo-card-meta {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--mist);
+      text-transform: uppercase;
+    }
+
+    /* ── SPACING BETWEEN SHOOTS ── */
+    .shoot-divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(240,235,227,0.15), transparent);
+      margin: 6rem 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 4rem 3rem;
+      border-top: 1px solid rgba(240,235,227,0.07);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4rem;
+    }
+    footer p {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--mist);
+    }
+    .footer-socials { display: flex; gap: 2rem; }
+    .footer-socials a {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--mist);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+    .footer-socials a:hover { color: var(--cream); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1.5rem; }
+      .nav-links { display: none; }
+      #hero { height: 50vh; margin-top: 5rem; }
+      .carousel-slide { width: 90vw; }
+      #intro { padding: 4rem 1.5rem; }
+      #gallery { padding: 4rem 1.5rem; }
+      .photo-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .shoot-label { flex-direction: column; align-items: flex-start; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo">Jaden Gorrilla</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO CAROUSEL -->
+  <section id="hero">
+    <div class="carousel-container">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide" style="background-image: url('carousel-1.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-2.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-3.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-4.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-8.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-9.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-7.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-5.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-6.jpg');"></div>
+        <!-- Clones for seamless loop -->
+        <div class="carousel-slide" style="background-image: url('carousel-1.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-2.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-3.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-4.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-8.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-9.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-7.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-5.jpg');"></div>
+        <div class="carousel-slide" style="background-image: url('carousel-6.jpg');"></div>
+      </div>
+    </div>
+    <div class="carousel-vignette"></div>
+  </section>
+
+  <!-- INTRO TEXT -->
+  <section id="intro">
+    <p class="intro-eyebrow">Gallery</p>
+    <h1 class="intro-title">A collection of <em>moments</em></h1>
+    <p class="intro-text">My photography explores the relationship between time, emotion, and movement. Whether through the split second of an action shot or the long exposure of a light painting, I focus on how timing shapes the feeling of an image. I am especially inspired by floral photography, often combining natural elements with portraiture to create contrast between softness and human expression. I am also drawn to fast-paced subjects such as sports, racing, and energetic children, capturing moments that would otherwise pass unnoticed. Across all of my work, I aim to create images that communicate emotion rather than simply document a scene. In some of my light-painting photography, I used motion, darkness, and distortion to evoke feelings of panic, chaos, and despair in the viewer.</p>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+
+    <!-- SHOOT 01: PORTRAITS -->
+    <div class="gallery-section">
+      <div class="shoot-label">
+        <div class="shoot-label-num">01</div>
+        <div class="shoot-label-text">
+          <h3>Boat photos</h3>
+          <p>Portrait Series</p>
+        </div>
+      </div>
+      <p style="font-size:0.75rem; color:var(--mist); margin-bottom:2.5rem; line-height:1.8; max-width:700px;">Pretty boat so take pics! :3</p>
+      <div class="photo-grid">
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('20.jpg');"></div>
+
+          <div class="photo-card-overlay">
+            <div class="photo-card-title"></div>
+            <div class="photo-card-meta">in the ocean</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('21.jpg');"></div>
+
+          <div class="photo-card-overlay">
+            <div class="photo-card-title"></div>
+            <div class="photo-card-meta">in the ocean</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('22.jpg');"></div>
+
+          <div class="photo-card-overlay">
+            <div class="photo-card-title"></div>
+            <div class="photo-card-meta">in the ocean</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('23.jpg');"></div>
+
+          <div class="photo-card-overlay">
+            <div class="photo-card-title"></div>
+            <div class="photo-card-meta">in the ocean</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shoot-divider"></div>
+
+    <!-- SHOOT 02: PETS & COMPANIONS -->
+    <div class="gallery-section">
+      <div class="shoot-label">
+        <div class="shoot-label-num">02</div>
+        <div class="shoot-label-text">
+          <h3>KITTY</h3>
+          <p>Pet Photography</p>
+        </div>
+      </div>
+      <p style="font-size:0.75rem; color:var(--mist); margin-bottom:2.5rem; line-height:1.8; max-width:700px;">*</p>
+      <div class="photo-grid">
+        <div class="photo-card">
+         <div class="photo-card-img" style="background-image: url('28.jpg');"></div>
+            <div class="photo-card-overlay">
+            <div class="photo-card-title">Kitty</div>
+            <div class="photo-card-meta">Home Portrait</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('29.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">Kitty Under Couch</div>
+            <div class="photo-card-meta">Candid</div>
+          </div>
+        </div>
+        <div class="photo-card">
+           <div class="photo-card-img" style="background-image: url('30.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">Kitty</div>
+            <div class="photo-card-meta">Home Portrait</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('31.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">Kitty</div>
+            <div class="photo-card-meta">Home Portrait</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shoot-divider"></div>
+
+    <!-- SHOOT 03: NATURE & LANDSCAPE -->
+    <div class="gallery-section">
+      <div class="shoot-label">
+        <div class="shoot-label-num">03</div>
+        <div class="shoot-label-text">
+          <h3>Wild photos</h3>
+          <p>Nature</p>
+        </div>
+      </div>
+      <p style="font-size:0.75rem; color:var(--mist); margin-bottom:2.5rem; line-height:1.8; max-width:700px;">*</p>
+      <div class="photo-grid">
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('24.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">Ginger</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('25.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">blood wart</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('26.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">jack in the pulpit</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('27.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">ferns</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shoot-divider"></div>
+
+    <!-- SHOOT 04: FINE ART -->
+    <div class="gallery-section">
+      <div class="shoot-label">
+        <div class="shoot-label-num">04</div>
+        <div class="shoot-label-text">
+          <h3>Northern lights</h3>
+          <p>Fine Art</p>
+        </div>
+      </div>
+      <p style="font-size:0.75rem; color:var(--mist); margin-bottom:2.5rem; line-height:1.8; max-width:700px;">*</p>
+      <div class="photo-grid">
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('32.jpg');"></div>
+
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">light nameing</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('33.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">framing</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('34.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">still exposure</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-card-img" style="background-image: url('35.jpg');"></div>
+          <div class="photo-card-overlay">
+            <div class="photo-card-title">color</div>
+            <div class="photo-card-meta">Parks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2026 Jaden Gorrilla. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="https://www.instagram.com/plaidbluerhino/?hl=en">Instagram</a>
+      <a href="#">Behance</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    // Carousel auto-scroll
+    const track = document.getElementById('carouselTrack');
+    let pos = 0;
+    let paused = false;
+    const speed = 0.5;
+
+    function getLoopWidth() {
+      const slide = track.querySelector('.carousel-slide');
+      return (slide.getBoundingClientRect().width + 3) * 9;
+    }
+
+    function tickCarousel() {
+      if (!paused) {
+        pos += speed;
+        if (pos >= getLoopWidth()) pos -= getLoopWidth();
+        track.style.transform = 'translateX(-' + pos + 'px)';
+      }
+      requestAnimationFrame(tickCarousel);
+    }
+    tickCarousel();
+
+    track.addEventListener('mouseenter', () => { paused = true; });
+    track.addEventListener('mouseleave', () => { paused = false; });
+
+    // Carousel image reveal
+    const carouselSlides = document.querySelectorAll('.carousel-slide');
+    carouselSlides.forEach((slide, i) => {
+      setTimeout(() => slide.classList.add('revealed'), 200 + (i % 9) * 100);
+    });
+
+    // Gallery section reveal on scroll
+    const sections = document.querySelectorAll('.gallery-section');
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    sections.forEach(section => sectionObserver.observe(section));
+
+    // Photo card image reveal
+    const photoCards = document.querySelectorAll('.photo-card-img');
+    photoCards.forEach((card, i) => {
+      setTimeout(() => card.classList.add('loaded'), 300 + i * 80);
+    });
+  </script>
+</body>
+</html>
