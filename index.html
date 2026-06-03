@@ -895,7 +895,7 @@
       <div class="service-card reveal">
         <div class="service-num">— 01</div>
         <div class="service-name">Portrait Sessions</div>
-        <p class="service-desc">Individual, couple, and family Portraits on location. Each session is treated as a bespoke collaboration.</p>
+        <p class="service-desc">Individual, couple, and family portraits on location. Each session is treated as a bespoke collaboration.</p>
       </div>
       <div class="service-card reveal" style="transition-delay:0.1s">
         <div class="service-num">— 02</div>
@@ -915,7 +915,7 @@
     <div class="reveal">
       <div class="section-label">Get in Touch</div>
       <div class="contact-title">Let's make something <em>beautiful</em></div>
-      <p class="contact-sub">Available for commissions in the Twin Cities and around<br>Response within 48 hours.</p>
+      <p class="contact-sub">Available for commissions in the Twin Cities.<br>Response within 48 hours.</p>
     </div>
     <form class="contact-form reveal" style="transition-delay:0.2s" action="https://formspree.io/f/mvzdrbpb" method="POST">
       <div class="form-field">
@@ -984,7 +984,7 @@
       cols.forEach(col => {
         const speed = parseFloat(col.dataset.speed);
         const base = parseInt(col.style.transform?.replace(/[^-\d.]/g, '') || '0');
-        col.style.transform = `translateY(calc(${col === cols[1] ? '-8%' : col === cols[2] ? '-16%' : '0%'} + ${sy * speed}px))`;
+        col. style.transform = `translateY(calc(${col === cols[1] ? '-8%' : col === cols[2] ? '-16%' : '0%'} + ${sy * speed}px))`;
       });
     });
   </script>
